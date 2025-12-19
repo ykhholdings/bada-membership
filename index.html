@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BADA Restaurant - Membership</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 450px;
+            width: 100%;
+            padding: 40px 30px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            color: #1a1a1a;
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .logo p {
+            color: #d4af37;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .welcome-box {
+            background: linear-gradient(135deg, #d4af37 0%, #f4e5b1 100%);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .welcome-box h2 {
+            color: #1a1a1a;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .welcome-box p {
+            color: #2d2d2d;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #2d2d2d;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .required {
+            color: #dc2626;
+        }
+
+        .optional {
+            color: #6b7280;
+            font-weight: 400;
+            font-size: 12px;
+        }
+
+        input[type="tel"],
+        input[type="text"],
+        input[type="date"] {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+        }
+
+        input:disabled {
+            background: #f3f4f6;
+            cursor: not-allowed;
+        }
+
+        .phone-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .phone-prefix {
+            width: 80px;
+            background: #f3f4f6;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+            font-weight: 600;
+            color: #2d2d2d;
+        }
+
+        .birthday-hint {
+            background: #fef3c7;
+            border-left: 4px solid #d4af37;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: #92400e;
+        }
+
+        .birthday-hint strong {
+            color: #78350f;
+        }
+
+        .skip-link {
+            text-align: right;
+            margin-top: 8px;
+        }
+
+        .skip-link a {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .skip-link a:hover {
+            color: #d4af37;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            position: relative;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .submit-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.6;
+        }
+
+        .submit-btn.loading::after {
+            content: '';
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: translateY(-50%) rotate(360deg); }
+        }
+
+        .bonus-badge {
+            background: #10b981;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .error {
+            background: #fee2e2;
+            border-left: 4px solid #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #991b1b;
+            font-size: 14px;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .success {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #065f46;
+            font-size: 14px;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .success.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>🍜 BADA RESTAURANT</h1>
+            <p>Premium Sushi & Sashimi</p>
+        </div>
+
+        <div class="welcome-box">
+            <h2>Welcome to BADA! 🎉</h2>
+            <p>Let's create your membership in 10 seconds</p>
+        </div>
+
+        <div id="error" class="error"></div>
+        <div id="success" class="success"></div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label>📱 Your Phone Number <span class="required">*</span></label>
+                <div class="phone-input">
+                    <div class="phone-prefix">+971</div>
+                    <input type="tel" id="phone" placeholder="50 123 4567" required maxlength="9" pattern="[0-9]{9}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>👤 Your Name <span class="optional">(Optional)</span></label>
+                <input type="text" id="name" placeholder="John Smith" maxlength="50">
+            </div>
+
+            <div class="form-group">
+                <label>🎂 Birthday <span class="optional">(Optional)</span></label>
+                <input type="date" id="birthday" max="2024-12-31">
+                <div class="birthday-hint">
+                    <strong>🎁 Get special birthday gift!</strong> Add your birthday to receive exclusive rewards on your special day.
+                </div>
+                <div class="skip-link">
+                    <a href="#" id="skipBirthday">Or skip - add later →</a>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                🎁 Create Membership
+            </button>
+
+            <div class="bonus-badge">
+                🎁 Join now and get 50 bonus points!
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // ============================================
+        // 설정
+        // ============================================
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwBZZamKddB0ULQ2ZhasEV34k79wAI4IZbIniA4Dj7EwDu7QHq7oOODXrpxtEwsm_WNrg/exec';
+        const STORAGE_KEY = 'bada_membership_phone';
+        
+        // 중복 제출 방지 플래그
+        let isSubmitting = false;
+        
+        // 요소 참조
+        const form = document.getElementById('registerForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const phoneInput = document.getElementById('phone');
+        const nameInput = document.getElementById('name');
+        const birthdayInput = document.getElementById('birthday');
+
+        // ============================================
+        // 유틸리티 함수
+        // ============================================
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            const successDiv = document.getElementById('success');
+            
+            successDiv.classList.remove('show');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            
+            // 5초 후 자동 숨김
+            setTimeout(() => {
+                errorDiv.classList.remove('show');
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const errorDiv = document.getElementById('error');
+            const successDiv = document.getElementById('success');
+            
+            errorDiv.classList.remove('show');
+            successDiv.textContent = message;
+            successDiv.classList.add('show');
+        }
+
+        function disableForm() {
+            phoneInput.disabled = true;
+            nameInput.disabled = true;
+            birthdayInput.disabled = true;
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+            submitBtn.textContent = 'Creating...';
+        }
+
+        function enableForm() {
+            phoneInput.disabled = false;
+            nameInput.disabled = false;
+            birthdayInput.disabled = false;
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('loading');
+            submitBtn.textContent = '🎁 Create Membership';
+        }
+
+        // ============================================
+        // 전화번호 입력 검증 & 자동 포맷
+        // ============================================
+        
+        phoneInput.addEventListener('input', (e) => {
+            // 숫자만 허용
+            let value = e.target.value.replace(/\D/g, '');
+            
+            // 최대 9자리
+            if (value.length > 9) {
+                value = value.substring(0, 9);
+            }
+            
+            e.target.value = value;
+            
+            // 실시간 검증
+            if (value.length > 0 && value.length < 9) {
+                phoneInput.style.borderColor = '#fbbf24';
+            } else if (value.length === 9) {
+                phoneInput.style.borderColor = '#10b981';
+            } else {
+                phoneInput.style.borderColor = '#e5e7eb';
+            }
+        });
+
+        // ============================================
+        // Birthday 스킵
+        // ============================================
+        
+        document.getElementById('skipBirthday').addEventListener('click', (e) => {
+            e.preventDefault();
+            birthdayInput.value = '';
+            birthdayInput.blur();
+        });
+
+        // ============================================
+        // 폼 제출 (중복 방지 로직 포함)
+        // ============================================
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // 🔒 중복 제출 방지 1: 플래그 체크
+            if (isSubmitting) {
+                console.log('Already submitting, ignoring duplicate request');
+                return;
+            }
+
+            const phone = phoneInput.value.trim();
+            const name = nameInput.value.trim();
+            const birthday = birthdayInput.value;
+
+            // 유효성 검사
+            if (!phone || phone.length !== 9) {
+                showError('Please enter a valid 9-digit phone number');
+                return;
+            }
+
+            // 숫자만 있는지 확인
+            if (!/^\d{9}$/.test(phone)) {
+                showError('Phone number must contain only numbers');
+                return;
+            }
+
+            // 🔒 중복 제출 방지 2: 플래그 설정
+            isSubmitting = true;
+
+            // UI 비활성화
+            disableForm();
+
+            try {
+                // 🔒 중복 제출 방지 3: 타임아웃 설정 (30초)
+                const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error('Request timeout')), 30000);
+                });
+
+                const fetchPromise = fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain', // CORS 우회
+                    },
+                    body: JSON.stringify({
+                        action: 'register',
+                        data: {
+                            phone_number: '+971' + phone,
+                            name: name || '',
+                            birthday: birthday || '',
+                            first_location: 'BADA',
+                            primary_source: 'Walk-in'
+                        }
+                    }),
+                    // 🔒 중복 제출 방지 4: 캐시 방지
+                    cache: 'no-cache'
+                });
+
+                const response = await Promise.race([fetchPromise, timeoutPromise]);
+                const result = await response.json();
+
+                if (result.success) {
+                    // 성공: LocalStorage에 저장
+                    localStorage.setItem(STORAGE_KEY, result.phone_number);
+                    
+                    showSuccess('✅ Membership created! Redirecting...');
+                    
+                    // 2초 후 멤버십 카드 페이지로 이동
+                    setTimeout(() => {
+                        window.location.href = 'card.html?new=1';
+                    }, 2000);
+
+                } else if (result.error === 'DUPLICATE') {
+                    // 이미 가입된 고객
+                    localStorage.setItem(STORAGE_KEY, result.customer.phone_number);
+                    
+                    showSuccess('✅ Welcome back! Redirecting...');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'card.html';
+                    }, 2000);
+
+                } else {
+                    // 기타 에러
+                    throw new Error(result.message || 'Registration failed');
+                }
+
+            } catch (error) {
+                console.error('Registration error:', error);
+                
+                // 사용자 친화적 에러 메시지
+                let errorMessage = 'Registration failed. Please try again.';
+                
+                if (error.message === 'Request timeout') {
+                    errorMessage = 'Connection timeout. Please check your internet and try again.';
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMessage = 'Network error. Please check your internet connection.';
+                }
+                
+                showError(errorMessage);
+                
+                // UI 다시 활성화
+                enableForm();
+                
+                // 🔒 중복 제출 방지 5: 플래그 해제
+                isSubmitting = false;
+
+            } finally {
+                // 성공 시에는 페이지 이동하므로 플래그 유지
+                // 에러 시에만 위에서 플래그 해제
+            }
+        });
+
+        // ============================================
+        // 페이지 로드 시: 기존 가입자 체크
+        // ============================================
+        
+        window.addEventListener('load', () => {
+            const savedPhone = localStorage.getItem(STORAGE_KEY);
+            
+            if (savedPhone) {
+                // 기존 고객은 바로 카드 페이지로 (테스트 시 주석 해제)
+                // window.location.href = 'card.html';
+                console.log('Existing member detected:', savedPhone);
+            }
+        });
+
+        // ============================================
+        // 페이지 이탈 방지 (제출 중일 때)
+        // ============================================
+        
+        window.addEventListener('beforeunload', (e) => {
+            if (isSubmitting) {
+                e.preventDefault();
+                e.returnValue = 'Registration in progress. Are you sure you want to leave?';
+                return e.returnValue;
+            }
+        });
+
+    </script>
+</body>
+</html>
+```
+
+**3. 커밋:**
+```
+하단 "Commit new file" 클릭
+→ "Commit new file" 버튼 클릭
