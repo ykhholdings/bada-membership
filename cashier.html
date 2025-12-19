@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BADA Cashier - Quick Visit</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 20px;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .main-content {
+            background: white;
+            padding: 25px;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .required {
+            color: #dc2626;
+            font-size: 12px;
+        }
+
+        /* 고객 검색 */
+        .search-box {
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 45px 14px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 0 3px rgba(212,175,55,0.1);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #d4af37;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .search-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        /* 고객 정보 표시 */
+        .customer-info {
+            background: #f9fafb;
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .customer-info.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .customer-info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .customer-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .customer-tier {
+            background: #d4af37;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .customer-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .customer-stats span {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        /* 버튼 그리드 */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .button-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .button-grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .choice-btn {
+            background: white;
+            border: 2px solid #e5e7eb;
+            padding: 12px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .choice-btn:hover {
+            border-color: #d4af37;
+            background: #fffbeb;
+        }
+
+        .choice-btn.selected {
+            background: #d4af37;
+            color: white;
+            border-color: #d4af37;
+        }
+
+        .choice-btn:disabled {
+            background: #f3f4f6;
+            color: #9ca3af;
+            cursor: not-allowed;
+            border-color: #e5e7eb;
+        }
+
+        /* 입력 필드 */
+        input[type="number"],
+        input[type="text"],
+        input[type="date"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #d4af37;
+        }
+
+        input:disabled {
+            background: #f3f4f6;
+            cursor: not-allowed;
+        }
+
+        /* 호텔 정보 섹션 */
+        .hotel-section {
+            background: #fef3c7;
+            border: 2px solid #fbbf24;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .hotel-section.show {
+            display: block;
+        }
+
+        /* 저장 버튼 */
+        .save-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .save-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16,185,129,0.3);
+        }
+
+        .save-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .save-btn.loading::after {
+            content: '';
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: translateY(-50%) rotate(360deg); }
+        }
+
+        /* 성공 메시지 */
+        .success-message {
+            background: #d1fae5;
+            border: 2px solid #10b981;
+            color: #065f46;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        /* 에러 메시지 */
+        .error-message {
+            background: #fee2e2;
+            border: 2px solid #dc2626;
+            color: #991b1b;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* 빠른 태그 */
+        .quick-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .tag-btn {
+            background: white;
+            border: 1px solid #e5e7eb;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tag-btn.selected {
+            background: #1a1a1a;
+            color: white;
+            border-color: #1a1a1a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✏️ Quick Visit Update</h1>
+            <button class="logout-btn" onclick="logout()">Dashboard</button>
+        </div>
+
+        <div class="main-content">
+            <!-- 성공/에러 메시지 -->
+            <div id="successMessage" class="success-message"></div>
+            <div id="errorMessage" class="error-message"></div>
+
+            <!-- 고객 검색 -->
+            <div class="section">
+                <div class="section-title">🔍 Customer</div>
+                <div class="search-box">
+                    <input 
+                        type="tel" 
+                        id="phoneSearch" 
+                        class="search-input" 
+                        placeholder="050 123 4567 or Scan QR"
+                        maxlength="15"
+                    >
+                    <button class="search-btn" id="searchBtn" onclick="searchCustomer()">
+                        Search
+                    </button>
+                </div>
+
+                <!-- 고객 정보 표시 -->
+                <div id="customerInfo" class="customer-info">
+                    <div class="customer-info-header">
+                        <div class="customer-name" id="customerName">-</div>
+                        <div class="customer-tier" id="customerTier">-</div>
+                    </div>
+                    <div class="customer-stats">
+                        <div>Visits: <span id="customerVisits">0</span></div>
+                        <div>Points: <span id="customerPoints">0</span></div>
+                        <div>Last: <span id="customerLast">Never</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 위치 (BADA만 있으면 자동 선택) -->
+            <div class="section">
+                <div class="section-title">🏪 Location <span class="required">*</span></div>
+                <div class="button-grid-2">
+                    <button class="choice-btn" data-field="location" data-value="BADA" onclick="selectChoice(this)">
+                        BADA
+                    </button>
+                    <button class="choice-btn" data-field="location" data-value="Crazy-BJ" onclick="selectChoice(this)">
+                        Crazy-BJ
+                    </button>
+                </div>
+            </div>
+
+            <!-- 고객 출처 (BADA 선택 시만 표시) -->
+            <div class="section" id="sourceSection" style="display: none;">
+                <div class="section-title">📍 Customer Source <span class="required">*</span></div>
+                <div class="button-grid">
+                    <button class="choice-btn" data-field="source" data-value="Hotel-Guest" onclick="selectChoice(this); showHotelSection()">
+                        🏨 Hotel
+                    </button>
+                    <button class="choice-btn" data-field="source" data-value="Walk-in" onclick="selectChoice(this); hideHotelSection()">
+                        🚶 Walk-in
+                    </button>
+                    <button class="choice-btn" data-field="source" data-value="Event-Guest" onclick="selectChoice(this); hideHotelSection()">
+                        🎉 Event
+                    </button>
+                </div>
+
+                <!-- 호텔 투숙객 정보 -->
+                <div id="hotelSection" class="hotel-section">
+                    <div style="margin-bottom: 12px;">
+                        <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 5px;">
+                            🚪 Room Number (optional)
+                        </label>
+                        <input type="text" id="roomNumber" placeholder="1205" maxlength="10">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 5px;">
+                            📅 Checkout Date (optional)
+                        </label>
+                        <input type="date" id="checkoutDate">
+                    </div>
+                    <div>
+                        <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 5px;">
+                            💳 Billing
+                        </label>
+                        <div class="button-grid-2">
+                            <button class="choice-btn" data-field="billing" data-value="Room-Charge" onclick="selectChoice(this)">
+                                Room Charge
+                            </button>
+                            <button class="choice-btn" data-field="billing" data-value="Direct-Pay" onclick="selectChoice(this)">
+                                Direct Pay
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 인원수 -->
+            <div class="section">
+                <div class="section-title">👥 Party Size <span class="required">*</span></div>
+                <div class="button-grid">
+                    <button class="choice-btn" data-field="party" data-value="1" onclick="selectChoice(this)">1</button>
+                    <button class="choice-btn" data-field="party" data-value="2" onclick="selectChoice(this)">2</button>
+                    <button class="choice-btn" data-field="party" data-value="3" onclick="selectChoice(this)">3</button>
+                    <button class="choice-btn" data-field="party" data-value="4" onclick="selectChoice(this)">4</button>
+                    <button class="choice-btn" data-field="party" data-value="5" onclick="selectChoice(this)">5</button>
+                    <button class="choice-btn" data-field="party" data-value="6+" onclick="selectChoice(this)">6+</button>
+                </div>
+            </div>
+
+            <!-- 국적 -->
+            <div class="section">
+                <div class="section-title">🌍 Nationality</div>
+                <div class="button-grid-4">
+                    <button class="choice-btn" data-field="nationality" data-value="Emirati" onclick="selectChoice(this)">🇦🇪 UAE</button>
+                    <button class="choice-btn" data-field="nationality" data-value="Filipino" onclick="selectChoice(this)">🇵🇭 PH</button>
+                    <button class="choice-btn" data-field="nationality" data-value="Indian" onclick="selectChoice(this)">🇮🇳 IN</button>
+                    <button class="choice-btn" data-field="nationality" data-value="Pakistani" onclick="selectChoice(this)">🇵🇰 PK</button>
+                    <button class="choice-btn" data-field="nationality" data-value="Korean" onclick="selectChoice(this)">🇰🇷 KR</button>
+                    <button class="choice-btn" data-field="nationality" data-value="Chinese" onclick="selectChoice(this)">🇨🇳 CN</button>
+                    <button class="choice-btn" data-field="nationality" data-value="European" onclick="selectChoice(this)">🇪🇺 EU</button>
+                    <button class="choice-btn" data-field="nationality" data-value="American" onclick="selectChoice(this)">🇺🇸 US</button>
+                </div>
+            </div>
+
+            <!-- 방문 유형 -->
+            <div class="section">
+                <div class="section-title">👥 Visit Type</div>
+                <div class="button-grid">
+                    <button class="choice-btn" data-field="visitType" data-value="Solo" onclick="selectChoice(this)">👤 Solo</button>
+                    <button class="choice-btn" data-field="visitType" data-value="Couple" onclick="selectChoice(this)">💑 Couple</button>
+                    <button class="choice-btn" data-field="visitType" data-value="Family" onclick="selectChoice(this)">👨‍👩‍👧 Family</button>
+                    <button class="choice-btn" data-field="visitType" data-value="Group" onclick="selectChoice(this)">🎉 Group</button>
+                    <button class="choice-btn" data-field="visitType" data-value="With-Kids" onclick="selectChoice(this)">👶 Kids</button>
+                    <button class="choice-btn" data-field="visitType" data-value="Business" onclick="selectChoice(this)">🏢 Business</button>
+                </div>
+            </div>
+
+            <!-- 메뉴 (다중 선택) -->
+            <div class="section">
+                <div class="section-title">🍽️ Menu Items (Multi-select)</div>
+                <div class="quick-tags" id="menuTags">
+                    <button class="tag-btn" data-field="menu" data-value="Hansang Sushi" onclick="toggleTag(this)">Hansang Sushi</button>
+                    <button class="tag-btn" data-field="menu" data-value="Hansang BBQ" onclick="toggleTag(this)">Hansang BBQ</button>
+                    <button class="tag-btn" data-field="menu" data-value="Ramen" onclick="toggleTag(this)">Ramen</button>
+                    <button class="tag-btn" data-field="menu" data-value="Yangnyeom Chicken" onclick="toggleTag(this)">양념치킨</button>
+                    <button class="tag-btn" data-field="menu" data-value="Tteokbokki" onclick="toggleTag(this)">떡볶이</button>
+                    <button class="tag-btn" data-field="menu" data-value="Bibimbap" onclick="toggleTag(this)">Bibimbap</button>
+                    <button class="tag-btn" data-field="menu" data-value="Sushi Roll" onclick="toggleTag(this)">Sushi Roll</button>
+                    <button class="tag-btn" data-field="menu" data-value="Other" onclick="toggleTag(this)">Other</button>
+                </div>
+            </div>
+
+            <!-- 주류 -->
+            <div class="section">
+                <div class="section-title">🍺 Alcohol</div>
+                <div class="button-grid-2">
+                    <button class="choice-btn" data-field="alcohol" data-value="Yes" onclick="selectChoice(this)">Yes</button>
+                    <button class="choice-btn" data-field="alcohol" data-value="No" onclick="selectChoice(this)">No</button>
+                </div>
+            </div>
+
+            <!-- 금액 -->
+            <div class="section">
+                <div class="section-title">💵 Bill Amount (optional)</div>
+                <input type="number" id="billAmount" placeholder="185" min="0" step="1">
+                <div id="pointsPreview" style="margin-top: 8px; font-size: 13px; color: #6b7280;">
+                    → Points to earn: <span style="font-weight: 600; color: #10b981;">0</span>
+                </div>
+            </div>
+
+            <!-- 빠른 노트 -->
+            <div class="section">
+                <div class="section-title">📝 Quick Notes (optional)</div>
+                <div class="quick-tags" id="noteTags">
+                    <button class="tag-btn" data-field="notes" data-value="Vegan" onclick="toggleTag(this)">🥗 Vegan</button>
+                    <button class="tag-btn" data-field="notes" data-value="No-Raw" onclick="toggleTag(this)">🚫 No Raw</button>
+                    <button class="tag-btn" data-field="notes" data-value="Spicy" onclick="toggleTag(this)">🌶️ Spicy</button>
+                    <button class="tag-btn" data-field="notes" data-value="Halal" onclick="toggleTag(this)">🥛 Halal</button>
+                    <button class="tag-btn" data-field="notes" data-value="Birthday" onclick="toggleTag(this)">🎂 Birthday</button>
+                    <button class="tag-btn" data-field="notes" data-value="Anniversary" onclick="toggleTag(this)">💝 Anniversary</button>
+                </div>
+            </div>
+
+            <!-- 저장 버튼 -->
+            <button class="save-btn" id="saveBtn" onclick="saveVisit()">
+                💾 SAVE & ISSUE COUPONS
+            </button>
+
+            <div id="autoIssuedCoupons" style="margin-top: 15px; padding: 12px; background: #fef3c7; border-radius: 8px; display: none;">
+                <div style="font-size: 13px; font-weight: 600; margin-bottom: 5px;">🎁 Auto-coupons to be issued:</div>
+                <div id="couponsList" style="font-size: 12px; color: #92400e;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // 설정
+        // ============================================
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwBZZamKddB0ULQ2ZhasEV34k79wAI4IZbIniA4Dj7EwDu7QHq7oOODXrpxtEwsm_WNrg/exec';
+
+        let currentCustomer = null;
+        let isSubmitting = false;
+
+        const visitData = {
+            location: '',
+            source: '',
+            party: '',
+            nationality: '',
+            visitType: '',
+            menu: [],
+            alcohol: '',
+            billAmount: 0,
+            notes: [],
+            roomNumber: '',
+            checkoutDate: '',
+            billingMethod: ''
+        };
+
+        // ============================================
+        // 고객 검색
+        // ============================================
+        async function searchCustomer() {
+            const phone = document.getElementById('phoneSearch').value.trim();
+            
+            if (!phone) {
+                showError('Please enter phone number');
+                return;
+            }
+
+            const searchBtn = document.getElementById('searchBtn');
+            searchBtn.disabled = true;
+            searchBtn.textContent = 'Searching...';
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({
+                        action: 'findByPhone',
+                        phone: phone
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result && result.customer_id) {
+                    currentCustomer = result;
+                    displayCustomerInfo();
+                    showSuccess('✅ Customer found!');
+                } else {
+                    showError('Customer not found. Please register first.');
+                    currentCustomer = null;
+                    document.getElementById('customerInfo').classList.remove('show');
+                }
+
+            } catch (error) {
+                console.error('Search error:', error);
+                showError('Search failed. Please try again.');
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = 'Search';
+            }
+        }
+
+        // Enter 키로 검색
+        document.getElementById('phoneSearch').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchCustomer();
+            }
+        });
+
+        // ============================================
+        // 고객 정보 표시
+        // ============================================
+        function displayCustomerInfo() {
+            document.getElementById('customerName').textContent = 
+                currentCustomer.name || 'Valued Guest';
+            
+            document.getElementById('customerTier').textContent = 
+                currentCustomer.member_tier || 'Bronze';
+            
+            document.getElementById('customerVisits').textContent = 
+                currentCustomer.total_visits || 0;
+            
+            document.getElementById('customerPoints').textContent = 
+                currentCustomer.available_points || 0;
+            
+            document.getElementById('customerLast').textContent = 
+                currentCustomer.last_visit_date ? formatDateShort(currentCustomer.last_visit_date) : 'Never';
+
+            document.getElementById('customerInfo').classList.add('show');
+
+            // 호텔 투숙객이면 자동으로 정보 채우기
+            if (currentCustomer.current_hotel) {
+                document.getElementById('roomNumber').value = currentCustomer.current_room_number || '';
+                document.getElementById('checkoutDate').value = currentCustomer.checkout_date || '';
+            }
+        }
+
+        // ============================================
+        // 선택 버튼 로직
+        // ============================================
+        function selectChoice(btn) {
+            const field = btn.dataset.field;
+            const value = btn.dataset.value;
+
+            // 같은 필드의 다른 버튼들 선택 해제
+            document.querySelectorAll(`[data-field="${field}"]`).forEach(b => {
+                b.classList.remove('selected');
+            });
+
+            // 현재 버튼 선택
+            btn.classList.add('selected');
+            visitData[field] = value;
+
+            // Location이 BADA면 source 섹션 표시
+            if (field === 'location') {
+                if (value === 'BADA') {
+                    document.getElementById('sourceSection').style.display = 'block';
+                } else {
+                    document.getElementById('sourceSection').style.display = 'none';
+                    hideHotelSection();
+                    visitData.source = '';
+                }
+            }
+
+            // 금액 입력 시 포인트 계산
+            if (field === 'billAmount') {
+                calculatePoints();
+            }
+        }
+
+        // 다중 선택 태그
+        function toggleTag(btn) {
+            const field = btn.dataset.field;
+            const value = btn.dataset.value;
+
+            btn.classList.toggle('selected');
+
+            if (btn.classList.contains('selected')) {
+                visitData[field].push(value);
+            } else {
+                visitData[field] = visitData[field].filter(v => v !== value);
+            }
+        }
+
+        // 호텔 섹션 표시/숨김
+        function showHotelSection() {
+            document.getElementById('hotelSection').classList.add('show');
+        }
+
+        function hideHotelSection() {
+            document.getElementById('hotelSection').classList.remove('show');
+        }
+
+        // ============================================
+        // 포인트 계산
+        // ============================================
+        document.getElementById('billAmount').addEventListener('input', (e) => {
+            const amount = parseFloat(e.target.value) || 0;
+            const rate = visitData.location === 'BADA' ? 0.05 : 0.03;
+            const points = Math.floor(amount * rate);
+            
+            document.querySelector('#pointsPreview span').textContent = points;
+        });
+
+        // ============================================
+        // 방문 저장
+        // ============================================
+        async function saveVisit() {
+            // 중복 제출 방지
+            if (isSubmitting) return;
+
+            // 필수 필드 검증
+            if (!currentCustomer) {
+                showError('Please search for a customer first');
+                return;
+            }
+
+            if (!visitData.location) {
+                showError('Please select Location');
+                return;
+            }
+
+            if (!visitData.party) {
+                showError('Please select Party Size');
+                return;
+            }
+
+            // BADA인 경우 source 필수
+            if (visitData.location === 'BADA' && !visitData.source) {
+                showError('Please select Customer Source (for BADA)');
+                return;
+            }
+
+            isSubmitting = true;
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.classList.add('loading');
+            saveBtn.textContent = 'Saving...';
+
+            try {
+                const billAmount = parseFloat(document.getElementById('billAmount').value) || 0;
+                
+                const payload = {
+                    action: 'recordVisit',
+                    data: {
+                        customer_id: currentCustomer.customer_id,
+                        location: visitData.location,
+                        party_size: parseInt(visitData.party) || 1,
+                        nationality: visitData.nationality || '',
+                        visit_type: visitData.visitType || '',
+                        menu_items: visitData.menu.join(', '),
+                        alcohol: visitData.alcohol || 'No',
+                        bill_amount: billAmount,
+                        dietary_prefs: visitData.notes.join(', '),
+                        staff_notes: '',
+                        created_by: 'Cashier',
+                        customer_source: visitData.source || '',
+                        room_number: document.getElementById('roomNumber').value || '',
+                        billing_method: visitData.billingMethod || '',
+                        checkout_date_at_visit: document.getElementById('checkoutDate').value || ''
+                    }
+                };
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccess(`✅ Visit recorded! +${result.points_earned} points earned`);
+                    
+                    // 폼 리셋
+                    setTimeout(() => {
+                        resetForm();
+                    }, 2000);
+                } else {
+                    showError(result.message || 'Failed to save visit');
+                }
+
+            } catch (error) {
+                console.error('Save error:', error);
+                showError('Connection error. Please try again.');
+            } finally {
+                isSubmitting = false;
+                saveBtn.disabled = false;
+                saveBtn.classList.remove('loading');
+                saveBtn.textContent = '💾 SAVE & ISSUE COUPONS';
+            }
+        }
+
+        // ============================================
+        // 폼 리셋
+        // ============================================
+        function resetForm() {
+            // 선택 버튼들 초기화
+            document.querySelectorAll('.choice-btn.selected').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.querySelectorAll('.tag-btn.selected').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
+            // 데이터 초기화
+            visitData.location = '';
+            visitData.source = '';
+            visitData.party = '';
+            visitData.nationality = '';
+            visitData.visitType = '';
+            visitData.menu = [];
+            visitData.alcohol = '';
+            visitData.notes = [];
+
+            // 입력 필드 초기화
+            document.getElementById('billAmount').value = '';
+            document.getElementById('roomNumber').value = '';
+            document.getElementById('checkoutDate').value = '';
+            document.querySelector('#pointsPreview span').textContent = '0';
+
+            // 고객 정보는 유지 (연속 입력 위해)
+            // currentCustomer 유지
+        }
+
+        // ============================================
+        // 메시지 표시
+        // ============================================
+        function showSuccess(message) {
+            const div = document.getElementById('successMessage');
+            div.textContent = message;
+            div.classList.add('show');
+            
+            document.getElementById('errorMessage').classList.remove('show');
+            
+            setTimeout(() => {
+                div.classList.remove('show');
+            }, 4000);
+        }
+
+        function showError(message) {
+            const div = document.getElementById('errorMessage');
+            div.textContent = message;
+            div.classList.add('show');
+            
+            document.getElementById('successMessage').classList.remove('show');
+            
+            setTimeout(() => {
+                div.classList.remove('show');
+            }, 5000);
+        }
+
+        // ============================================
+        // 유틸리티
+        // ============================================
+        function formatDateShort(dateStr) {
+            if (!dateStr) return 'Never';
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 0) return 'Today';
+            if (diffDays === 1) return 'Yesterday';
+            if (diffDays < 7) return `${diffDays}d ago`;
+            return `${Math.floor(diffDays/7)}w ago`;
+        }
+
+        function logout() {
+            window.location.href = 'admin.html';
+        }
+    </script>
+</body>
+</html>
+```
+
+**3. 파일 커밋:**
+```
+"Commit new file" 클릭
+```
+
+---
+
+## 🎯 STEP 5 완료!
+
+### 테스트 방법:
+
+**1. 캐시어 페이지 접속**
+```
+https://ykhholdings.github.io/bada-membership/cashier.html
+```
+
+**2. 테스트 시나리오**
+```
+1. 전화번호 검색: 50 123 9999 (이전에 등록한 번호)
+2. "Search" 클릭 → 고객 정보 표시
+3. Location: BADA 선택
+4. Customer Source: Hotel Guest 선택
+5. Room: 1205 입력
+6. Party Size: 2 선택
+7. Nationality: American 선택
+8. Visit Type: Couple 선택
+9. Menu: Hansang Sushi 선택
+10. Alcohol: Yes 선택
+11. Bill Amount: 250 입력
+12. "SAVE & ISSUE COUPONS" 클릭
+```
+
+**3. 확인**
+```
+→ Google Sheets VISITS 시트에 새 방문 기록 추가
+→ CUSTOMERS 시트에서 해당 고객의 total_visits +1
+→ available_points 증가 확인
