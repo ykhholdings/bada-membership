@@ -522,7 +522,7 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script>
         // ============================================
         // 설정
@@ -533,17 +533,35 @@
         let customerData = null;
 
         // ============================================
+        // 디버그 로깅
+        // ============================================
+        function debugLog(message, data) {
+            console.log('🔍 DEBUG:', message, data);
+            
+            // 화면에도 표시 (개발용)
+            const debugDiv = document.getElementById('debugInfo');
+            if (debugDiv) {
+                debugDiv.innerHTML += `<div>${message}: ${JSON.stringify(data)}</div>`;
+            }
+        }
+
+        // ============================================
         // 페이지 로드
         // ============================================
         window.addEventListener('load', async () => {
-            // URL 파라미터 체크 (신규 가입자인지)
+            debugLog('Page loaded', new Date());
+            
+            // URL 파라미터 체크
             const urlParams = new URLSearchParams(window.location.search);
             const isNewMember = urlParams.get('new') === '1';
+            debugLog('Is new member?', isNewMember);
 
             // LocalStorage에서 전화번호 가져오기
             const savedPhone = localStorage.getItem(STORAGE_KEY);
+            debugLog('Saved phone from LocalStorage', savedPhone);
 
             if (!savedPhone) {
+                debugLog('No phone found', 'Redirecting to index');
                 showError('No membership found. Please register first.');
                 return;
             }
@@ -556,30 +574,43 @@
         // 고객 데이터 로드
         // ============================================
         async function loadCustomerData(phone, isNewMember = false) {
+            debugLog('Loading customer data for', phone);
+            
             try {
+                debugLog('Making API call to', API_URL);
+                
+                const requestBody = {
+                    action: 'findByPhone',
+                    phone: phone
+                };
+                debugLog('Request body', requestBody);
+
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'text/plain',
                     },
-                    body: JSON.stringify({
-                        action: 'findByPhone',
-                        phone: phone
-                    })
+                    body: JSON.stringify(requestBody)
                 });
 
+                debugLog('Response status', response.status);
+                
                 const result = await response.json();
+                debugLog('API response', result);
 
                 if (result && result.customer_id) {
                     customerData = result;
+                    debugLog('Customer data loaded', customerData);
                     displayMembershipCard(isNewMember);
                 } else {
-                    showError('Could not load your membership. Please try again.');
+                    debugLog('Invalid response', result);
+                    showError('Could not load your membership. API returned: ' + JSON.stringify(result));
                 }
 
             } catch (error) {
-                console.error('Load error:', error);
-                showError('Connection error. Please check your internet.');
+                debugLog('Load error', error.toString());
+                console.error('Full error:', error);
+                showError('Connection error: ' + error.message);
             }
         }
 
@@ -587,6 +618,8 @@
         // 멤버십 카드 표시
         // ============================================
         function displayMembershipCard(isNewMember) {
+            debugLog('Displaying card', { isNewMember, customerData });
+            
             // 로딩 숨기기
             document.getElementById('loading').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
@@ -614,12 +647,12 @@
 
             // 포인트
             const points = customerData.available_points || 0;
-            const pointsAED = Math.floor(points / 20); // 20 포인트 = 1 AED
+            const pointsAED = Math.floor(points / 20);
             
             document.getElementById('pointsValue').textContent = points;
             document.getElementById('pointsAED').textContent = `= ${pointsAED} AED discount`;
 
-            // 진행률 계산 (다음 등급까지)
+            // 진행률 계산
             updateProgressBar(customerData);
 
             // 활동 정보
@@ -635,11 +668,13 @@
             document.getElementById('favoriteMenu').textContent = 
                 customerData.favorite_menu || '-';
 
-            // 쿠폰 로드 (현재는 샘플)
+            // 쿠폰 로드
             loadCoupons();
 
             // 다음 리워드
             updateNextReward(customerData);
+            
+            debugLog('Card display complete', 'Success');
         }
 
         // ============================================
@@ -647,16 +682,22 @@
         // ============================================
         function generateQRCode(customerId) {
             const qrContainer = document.getElementById('qrCode');
-            qrContainer.innerHTML = ''; // 초기화
+            qrContainer.innerHTML = '';
 
-            new QRCode(qrContainer, {
-                text: customerId,
-                width: 150,
-                height: 150,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
+            try {
+                new QRCode(qrContainer, {
+                    text: customerId,
+                    width: 150,
+                    height: 150,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                debugLog('QR code generated', customerId);
+            } catch (error) {
+                debugLog('QR generation error', error);
+                qrContainer.textContent = customerId;
+            }
         }
 
         // ============================================
@@ -666,7 +707,6 @@
             const tier = customer.member_tier || 'Bronze';
             const visits = customer.total_visits || 0;
             const spent = customer.total_spent || 0;
-            const points = customer.available_points || 0;
 
             let nextTier, targetVisits, targetSpent, progress, remaining;
 
@@ -744,19 +784,12 @@
         }
 
         // ============================================
-        // 쿠폰 로드 (샘플)
+        // 쿠폰 로드
         // ============================================
         function loadCoupons() {
             const container = document.getElementById('couponsContainer');
             
-            // 샘플 쿠폰 (나중에 API에서 로드)
             const sampleCoupons = [
-                {
-                    title: '🎂 Birthday Special',
-                    description: '20% OFF entire meal',
-                    expiry: 'Valid until: Jan 31, 2025',
-                    badge: 'ACTIVE NOW'
-                },
                 {
                     title: '🎁 Welcome Bonus',
                     description: 'Free appetizer with any main dish',
@@ -823,6 +856,7 @@
         }
 
         function showError(message) {
+            debugLog('Showing error', message);
             document.getElementById('loading').style.display = 'none';
             document.getElementById('error').style.display = 'block';
             document.getElementById('errorMessage').textContent = message;
@@ -861,6 +895,59 @@
             }
         }
     </script>
+    
+    <!-- 디버그 정보 (화면 하단, 개발용) -->
+    <div id="debugInfo" style="position: fixed; bottom: 0; left: 0; right: 0; background: #000; color: #0f0; font-size: 10px; padding: 10px; max-height: 150px; overflow-y: auto; font-family: monospace; display: none;">
+    </div>
+    
+    <!-- F12를 눌러서 Console 확인용 안내 -->
+    <script>
+        // Ctrl+Shift+D로 디버그 정보 토글
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+                const debugDiv = document.getElementById('debugInfo');
+                debugDiv.style.display = debugDiv.style.display === 'none' ? 'block' : 'none';
+            }
+        });
+    </script>
+```
+
+**3. 저장:**
+```
+하단 "Commit changes" 클릭
+```
+
+---
+
+## 📱 다시 테스트
+
+**1-2분 기다린 후:**
+```
+1. 브라우저 새로고침 (또는 캐시 삭제)
+2. 다시 가입 시도: https://ykhholdings.github.io/bada-membership/
+3. 새 전화번호로 가입: 50 888 9999
+```
+
+**에러가 다시 나면:**
+```
+1. 폰에서 F12 불가능하므로
+2. PC 브라우저에서 테스트
+3. F12 눌러서 Console 탭 확인
+4. 에러 메시지 복사해서 알려주세요
+```
+
+---
+
+## 🔍 또는 즉시 확인:
+
+**PC에서 테스트:**
+```
+1. PC 브라우저로 https://ykhholdings.github.io/bada-membership/ 접속
+2. F12 누르기 → Console 탭
+3. 가입 진행
+4. Console에 "🔍 DEBUG:" 메시지들이 보임
+5. 어디서 에러 나는지 확인
+6. 스크린샷이나 에러 메시지 알려주세요
 </body>
 </html>
 ```
