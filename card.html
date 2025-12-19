@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BADA Membership Card</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 24px;
+        }
+
+        .settings-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+
+        .settings-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.1);
+        }
+
+        /* 멤버십 카드 */
+        .membership-card {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 2px solid #d4af37;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .membership-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .card-tier {
+            color: #d4af37;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .card-name {
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .qr-container {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .qr-code {
+            width: 150px;
+            height: 150px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .card-phone {
+            color: #d4af37;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* 포인트 섹션 */
+        .points-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .points-label {
+            color: #d4af37;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .points-value {
+            color: white;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .points-aed {
+            color: #9ca3af;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.1);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #d4af37 0%, #f4e5b1 100%);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease-out;
+        }
+
+        .progress-text {
+            color: #9ca3af;
+            font-size: 12px;
+        }
+
+        /* 쿠폰 섹션 */
+        .section-title {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .coupons-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .coupon-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-left: 4px solid #d4af37;
+            transition: all 0.3s;
+        }
+
+        .coupon-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .coupon-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .coupon-title {
+            color: #1a1a1a;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .coupon-badge {
+            background: #10b981;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .coupon-description {
+            color: #4b5563;
+            font-size: 14px;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .coupon-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .coupon-expiry {
+            color: #9ca3af;
+            font-size: 12px;
+        }
+
+        .use-btn {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .use-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .use-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 활동 섹션 */
+        .activity-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .activity-item {
+            text-align: center;
+        }
+
+        .activity-label {
+            color: #9ca3af;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .activity-value {
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        /* 액션 버튼들 */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .action-btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        /* 다음 리워드 */
+        .next-reward {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* 로딩 */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid #d4af37;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 에러 */
+        .error-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            margin: 100px auto;
+        }
+
+        .error-container h2 {
+            color: #dc2626;
+            margin-bottom: 15px;
+        }
+
+        .error-container p {
+            color: #4b5563;
+            margin-bottom: 20px;
+        }
+
+        .error-btn {
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* 환영 배너 (신규 가입자) */
+        .welcome-banner {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .welcome-banner h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .welcome-banner p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <!-- 로딩 상태 -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Loading your membership...</p>
+    </div>
+
+    <!-- 에러 상태 -->
+    <div id="error" class="error-container" style="display: none;">
+        <h2>😕 Oops!</h2>
+        <p id="errorMessage">Could not load your membership card.</p>
+        <button class="error-btn" onclick="window.location.href='index.html'">
+            Back to Registration
+        </button>
+    </div>
+
+    <!-- 메인 컨테이너 -->
+    <div id="mainContent" class="container" style="display: none;">
+        <div class="header">
+            <h1>🍜 BADA</h1>
+            <button class="settings-btn" onclick="openSettings()">⚙️</button>
+        </div>
+
+        <!-- 신규 가입 환영 배너 -->
+        <div id="welcomeBanner" class="welcome-banner" style="display: none;">
+            <h3>🎉 Welcome to BADA!</h3>
+            <p>You've earned 50 bonus points to get started</p>
+        </div>
+
+        <!-- 멤버십 카드 -->
+        <div class="membership-card">
+            <div class="card-header">
+                <div class="card-tier" id="memberTier">PREMIUM MEMBER</div>
+                <div class="card-name" id="memberName">Loading...</div>
+                <div class="qr-container">
+                    <div class="qr-code" id="qrCode">
+                        QR CODE
+                    </div>
+                </div>
+                <div class="card-phone" id="memberPhone">+971 XXX XXXX</div>
+            </div>
+        </div>
+
+        <!-- 포인트 섹션 -->
+        <div class="points-section">
+            <div class="points-label">💎 Your Points</div>
+            <div class="points-value" id="pointsValue">0</div>
+            <div class="points-aed" id="pointsAED">= 0 AED discount</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+            </div>
+            <div class="progress-text" id="progressText">
+                0 more points → Next tier!
+            </div>
+        </div>
+
+        <!-- 쿠폰 섹션 -->
+        <div class="section-title">🎟️ Active Coupons <span id="couponCount">(0)</span></div>
+        <div class="coupons-container" id="couponsContainer">
+            <!-- 쿠폰들이 여기에 동적으로 추가됨 -->
+        </div>
+
+        <!-- 활동 섹션 -->
+        <div class="section-title">📊 Your Activity</div>
+        <div class="activity-section">
+            <div class="activity-grid">
+                <div class="activity-item">
+                    <div class="activity-label">Total Visits</div>
+                    <div class="activity-value" id="totalVisits">0</div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-label">Member Since</div>
+                    <div class="activity-value" id="memberSince">-</div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-label">Last Visit</div>
+                    <div class="activity-value" id="lastVisit">-</div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-label">Favorite</div>
+                    <div class="activity-value" id="favoriteMenu">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 액션 버튼 -->
+        <div class="action-buttons">
+            <button class="action-btn" onclick="inviteFriend()">
+                👥 Invite Friend
+            </button>
+            <button class="action-btn" onclick="addToWallet()">
+                💳 Add to Wallet
+            </button>
+        </div>
+
+        <!-- 다음 리워드 -->
+        <div class="next-reward" id="nextReward">
+            🎉 Next reward: Silver status at 5 visits or 1,000 AED
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script>
+        // ============================================
+        // 설정
+        // ============================================
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwBZZamKddB0ULQ2ZhasEV34k79wAI4IZbIniA4Dj7EwDu7QHq7oOODXrpxtEwsm_WNrg/exec';
+        const STORAGE_KEY = 'bada_membership_phone';
+
+        let customerData = null;
+
+        // ============================================
+        // 페이지 로드
+        // ============================================
+        window.addEventListener('load', async () => {
+            // URL 파라미터 체크 (신규 가입자인지)
+            const urlParams = new URLSearchParams(window.location.search);
+            const isNewMember = urlParams.get('new') === '1';
+
+            // LocalStorage에서 전화번호 가져오기
+            const savedPhone = localStorage.getItem(STORAGE_KEY);
+
+            if (!savedPhone) {
+                showError('No membership found. Please register first.');
+                return;
+            }
+
+            // 고객 정보 로드
+            await loadCustomerData(savedPhone, isNewMember);
+        });
+
+        // ============================================
+        // 고객 데이터 로드
+        // ============================================
+        async function loadCustomerData(phone, isNewMember = false) {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain',
+                    },
+                    body: JSON.stringify({
+                        action: 'findByPhone',
+                        phone: phone
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result && result.customer_id) {
+                    customerData = result;
+                    displayMembershipCard(isNewMember);
+                } else {
+                    showError('Could not load your membership. Please try again.');
+                }
+
+            } catch (error) {
+                console.error('Load error:', error);
+                showError('Connection error. Please check your internet.');
+            }
+        }
+
+        // ============================================
+        // 멤버십 카드 표시
+        // ============================================
+        function displayMembershipCard(isNewMember) {
+            // 로딩 숨기기
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+
+            // 신규 가입자 환영 배너
+            if (isNewMember) {
+                document.getElementById('welcomeBanner').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('welcomeBanner').style.display = 'none';
+                }, 5000);
+            }
+
+            // 기본 정보
+            document.getElementById('memberTier').textContent = 
+                (customerData.member_tier || 'Bronze').toUpperCase() + ' MEMBER';
+            
+            document.getElementById('memberName').textContent = 
+                customerData.name || 'Valued Guest';
+            
+            document.getElementById('memberPhone').textContent = 
+                maskPhone(customerData.phone_number);
+
+            // QR 코드 생성
+            generateQRCode(customerData.customer_id);
+
+            // 포인트
+            const points = customerData.available_points || 0;
+            const pointsAED = Math.floor(points / 20); // 20 포인트 = 1 AED
+            
+            document.getElementById('pointsValue').textContent = points;
+            document.getElementById('pointsAED').textContent = `= ${pointsAED} AED discount`;
+
+            // 진행률 계산 (다음 등급까지)
+            updateProgressBar(customerData);
+
+            // 활동 정보
+            document.getElementById('totalVisits').textContent = 
+                customerData.total_visits || 0;
+            
+            document.getElementById('memberSince').textContent = 
+                formatDate(customerData.created_at);
+            
+            document.getElementById('lastVisit').textContent = 
+                customerData.last_visit_date ? formatDateRelative(customerData.last_visit_date) : 'Never';
+            
+            document.getElementById('favoriteMenu').textContent = 
+                customerData.favorite_menu || '-';
+
+            // 쿠폰 로드 (현재는 샘플)
+            loadCoupons();
+
+            // 다음 리워드
+            updateNextReward(customerData);
+        }
+
+        // ============================================
+        // QR 코드 생성
+        // ============================================
+        function generateQRCode(customerId) {
+            const qrContainer = document.getElementById('qrCode');
+            qrContainer.innerHTML = ''; // 초기화
+
+            new QRCode(qrContainer, {
+                text: customerId,
+                width: 150,
+                height: 150,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        // ============================================
+        // 진행률 바 업데이트
+        // ============================================
+        function updateProgressBar(customer) {
+            const tier = customer.member_tier || 'Bronze';
+            const visits = customer.total_visits || 0;
+            const spent = customer.total_spent || 0;
+            const points = customer.available_points || 0;
+
+            let nextTier, targetVisits, targetSpent, progress, remaining;
+
+            if (tier === 'Bronze') {
+                nextTier = 'Silver';
+                targetVisits = 5;
+                targetSpent = 1000;
+                progress = Math.max(
+                    (visits / targetVisits) * 100,
+                    (spent / targetSpent) * 100
+                );
+                remaining = Math.max(0, targetVisits - visits);
+            } else if (tier === 'Silver') {
+                nextTier = 'Gold';
+                targetVisits = 15;
+                targetSpent = 3000;
+                progress = Math.max(
+                    (visits / targetVisits) * 100,
+                    (spent / targetSpent) * 100
+                );
+                remaining = Math.max(0, targetVisits - visits);
+            } else if (tier === 'Gold') {
+                nextTier = 'Platinum';
+                targetVisits = 30;
+                targetSpent = 10000;
+                progress = Math.max(
+                    (visits / targetVisits) * 100,
+                    (spent / targetSpent) * 100
+                );
+                remaining = Math.max(0, targetVisits - visits);
+            } else {
+                nextTier = 'MAX';
+                progress = 100;
+                remaining = 0;
+            }
+
+            document.getElementById('progressBar').style.width = Math.min(progress, 100) + '%';
+            
+            if (nextTier === 'MAX') {
+                document.getElementById('progressText').textContent = 
+                    '🏆 You\'ve reached the highest tier!';
+            } else {
+                document.getElementById('progressText').textContent = 
+                    `${remaining} more visits → ${nextTier}!`;
+            }
+        }
+
+        // ============================================
+        // 다음 리워드 업데이트
+        // ============================================
+        function updateNextReward(customer) {
+            const tier = customer.member_tier || 'Bronze';
+            const visits = customer.total_visits || 0;
+            const spent = customer.total_spent || 0;
+
+            let message = '';
+
+            if (tier === 'Bronze') {
+                const visitsNeeded = Math.max(0, 5 - visits);
+                const spentNeeded = Math.max(0, 1000 - spent);
+                message = `🎉 Next reward: Silver status at ${visitsNeeded} more visits or ${spentNeeded} AED`;
+            } else if (tier === 'Silver') {
+                const visitsNeeded = Math.max(0, 15 - visits);
+                const spentNeeded = Math.max(0, 3000 - spent);
+                message = `🎉 Next reward: Gold status at ${visitsNeeded} more visits or ${spentNeeded} AED`;
+            } else if (tier === 'Gold') {
+                const visitsNeeded = Math.max(0, 30 - visits);
+                const spentNeeded = Math.max(0, 10000 - spent);
+                message = `🎉 Next reward: Platinum status at ${visitsNeeded} more visits or ${spentNeeded} AED`;
+            } else {
+                message = '🏆 You are at the highest tier! Thank you for your loyalty!';
+            }
+
+            document.getElementById('nextReward').textContent = message;
+        }
+
+        // ============================================
+        // 쿠폰 로드 (샘플)
+        // ============================================
+        function loadCoupons() {
+            const container = document.getElementById('couponsContainer');
+            
+            // 샘플 쿠폰 (나중에 API에서 로드)
+            const sampleCoupons = [
+                {
+                    title: '🎂 Birthday Special',
+                    description: '20% OFF entire meal',
+                    expiry: 'Valid until: Jan 31, 2025',
+                    badge: 'ACTIVE NOW'
+                },
+                {
+                    title: '🎁 Welcome Bonus',
+                    description: 'Free appetizer with any main dish',
+                    expiry: 'Valid: 7 days',
+                    badge: 'NEW'
+                }
+            ];
+
+            if (sampleCoupons.length === 0) {
+                container.innerHTML = '<p style="color: #9ca3af; text-align: center; padding: 20px;">No active coupons yet</p>';
+                document.getElementById('couponCount').textContent = '(0)';
+                return;
+            }
+
+            document.getElementById('couponCount').textContent = `(${sampleCoupons.length})`;
+
+            container.innerHTML = sampleCoupons.map((coupon, index) => `
+                <div class="coupon-card">
+                    <div class="coupon-header">
+                        <div>
+                            <div class="coupon-title">${coupon.title}</div>
+                            <div class="coupon-description">${coupon.description}</div>
+                        </div>
+                        <div class="coupon-badge">${coupon.badge}</div>
+                    </div>
+                    <div class="coupon-footer">
+                        <div class="coupon-expiry">${coupon.expiry}</div>
+                        <button class="use-btn" onclick="useCoupon(${index})">Use Coupon →</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ============================================
+        // 유틸리티 함수
+        // ============================================
+
+        function maskPhone(phone) {
+            if (!phone) return '+971 XXX XXXX';
+            const last4 = phone.slice(-4);
+            return `+971 XXX ${last4}`;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            const month = date.toLocaleString('en', { month: 'short' });
+            const year = date.getFullYear();
+            return `${month} ${year}`;
+        }
+
+        function formatDateRelative(dateString) {
+            if (!dateString) return 'Never';
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 0) return 'Today';
+            if (diffDays === 1) return 'Yesterday';
+            if (diffDays < 7) return `${diffDays} days ago`;
+            if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+            return `${Math.floor(diffDays / 30)} months ago`;
+        }
+
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('errorMessage').textContent = message;
+        }
+
+        // ============================================
+        // 액션 함수들
+        // ============================================
+
+        function useCoupon(index) {
+            alert('Coupon usage feature coming soon!\n\nShow this screen to staff to redeem your coupon.');
+        }
+
+        function inviteFriend() {
+            const referralLink = `https://ykhholdings.github.io/bada-membership/?ref=${customerData.customer_id}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Join BADA Restaurant',
+                    text: 'Get 10% OFF your first meal at BADA!',
+                    url: referralLink
+                });
+            } else {
+                alert('Referral link:\n\n' + referralLink + '\n\nShare this with your friends!');
+            }
+        }
+
+        function addToWallet() {
+            alert('Add to Wallet feature coming soon!\n\nFor now, you can bookmark this page or add to home screen.');
+        }
+
+        function openSettings() {
+            if (confirm('Sign out and return to registration?')) {
+                localStorage.removeItem(STORAGE_KEY);
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>
+```
+
+**3. 파일 커밋:**
+```
+하단 "Commit new file" 클릭
+```
+
+---
+
+## 🎯 STEP 4 완료 체크리스트
+
+완료되면 테스트해봅시다!
+
+### 테스트 순서:
+
+**1. 신규 가입 → 카드 확인**
+```
+1. https://ykhholdings.github.io/bada-membership/ 접속
+2. 새 전화번호로 가입: 50 555 6666
+3. 자동으로 card.html로 리다이렉트
+4. 멤버십 카드 보이는지 확인!
+```
+
+**2. 기존 회원 직접 접속**
+```
+1. https://ykhholdings.github.io/bada-membership/card.html 접속
+2. 이미 저장된 번호로 자동 로드
+3. 포인트, 쿠폰 표시 확인
