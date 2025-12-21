@@ -532,7 +532,17 @@
             }
         });
 
-
+        // ============================================
+        // 페이지 이탈 방지 (제출 중일 때)
+        // ============================================
+        
+        window.addEventListener('beforeunload', (e) => {
+            if (isSubmitting) {
+                e.preventDefault();
+                e.returnValue = 'Registration in progress. Are you sure you want to leave?';
+                return e.returnValue;
+            }
+        });
 
     </script>
 </body>
