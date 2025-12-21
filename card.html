@@ -829,9 +829,11 @@
 
         function maskPhone(phone) {
             if (!phone) return '+971 XXX XXXX';
-            const last4 = phone.slice(-4);
-            return `+971 XXX ${last4}`;
+            const phoneStr = String(phone); // 문자열로 변환
+            const last4 = phoneStr.slice(-4);
+            return '+971 XXX ' + last4;
         }
+               
 
         function formatDate(dateString) {
             if (!dateString) return '-';
